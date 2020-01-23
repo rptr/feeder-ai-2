@@ -64,9 +64,10 @@ class HelperAI extends AIController
 			if (tasks.len() == 0)
             {
 				tasks.push(LookForWork());
+                HelperAI.Sleep(10);
 			}
 			
-			Debug("Tasks: " + ArrayToString(tasks));
+			/* Debug("Tasks: " + ArrayToString(tasks)); */
 			
 			local task;
 
@@ -77,9 +78,10 @@ class HelperAI extends AIController
 				
 				// run the next task in the queue
 				task = tasks[0];
-				Debug("Running: " + task);
+				/* Debug("Running: " + task); */
 				task.Run();
 				tasks.remove(0);
+                ResetSign();
 			}
             catch (e)
             {
@@ -224,19 +226,21 @@ class LookForWork extends Task
         if (station == null)
         {
             Debug("no stations to help");
-            HelperAI.Sleep(10);
             return false;
         }
 
-        local industry_id  = Help.get_feed_industry(station);
+        local industry_id  = Help.get_feed_industry(station.station_id);
         
         if (industry_id == null)
         {
-            Debug("no nearby industries");
+            /* Debug("no nearby industries"); */
             return false;
         }
 
-        HelperAI.add_task(BuildFeedStation(station, industry_id));
+        local task = CreateFeeder(station.station_id, 
+                                  industry_id, 
+                                  station.get_cargo())
+        HelperAI.add_task(task);
 	}
 	
 }
