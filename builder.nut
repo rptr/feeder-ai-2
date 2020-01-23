@@ -11,6 +11,7 @@ require("builder_road.nut");
 require("builder_stations.nut");
 require("builder_track.nut");
 require("builder_trains.nut");
+require("builder_feed.nut");
 
 /**
  * Returns the proper direction for a station at a, with the tracks heading to b.
@@ -132,4 +133,62 @@ function CargoValue(location, rotation, from, to, cargo, radius, accept) {
 	}
 	
 	return 0;
+}
+
+function StationRotationForDirection(direction)
+{
+	switch (direction)
+    {
+		case Direction.NE: return Rotation.ROT_270;
+		case Direction.SE: return Rotation.ROT_180;
+		case Direction.SW: return Rotation.ROT_90;
+		case Direction.NW: return Rotation.ROT_0;
+		default: throw "invalid direction";
+	}
+}
+
+function FindIndustryStationSite(industry, producing, stationRotation, destination)
+{
+    local location = AIIndustry.GetLocation(industry);
+    local area = producing ? AITileList_IndustryProducing(industry, RAIL_STATION_RADIUS) : AITileList_IndustryAccepting(industry, RAIL_STATION_RADIUS);
+    
+    // room for a station
+    // area.Valuate(IsBuildableRectangle, stationRotation, [0, -1], [1, CARGO_STATION_LENGTH + 1], true);
+    for (local tile = area.Begin(); area.HasNext(); tile = area.Next())
+    {
+        area.SetValue(tile, IsBuildableRectangle(tile, stationRotation, [0, -1], [1, CARGO_STATION_LENGTH + 1], true) ? 1 : 0);
+    }
+    
+    area.KeepValue(1);
+    
+    // pick the tile farthest from the destination for increased profit
+    area.Valuate(AITile.GetDistanceManhattanToTile, destination);
+    area.KeepTop(1);
+    
+    // pick the tile closest to the industry for looks
+    //area.Valuate(AITile.GetDistanceManhattanToTile, location);
+    //area.KeepBottom(1);
+    
+    return area.IsEmpty() ? null : area.Begin();
+}
+
+function RandomCargo ()
+{
+    local cargoList = AICargoList();
+    
+    // no passengers, mail or valuables
+    foreach (cc in [AICargo.CC_PASSENGERS, AICargo.CC_MAIL, AICargo.CC_EXPRESS, AICargo.CC_ARMOURED]) { 
+        cargoList.Valuate(AICargo.HasCargoClass, cc);
+        cargoList.KeepValue(0);
+    }
+ 
+    if (cargoList.IsEmpty())
+    {
+        throw TaskFailedException("No suitable cargo");
+    }
+    
+    // pick one at random
+    cargoList.Valuate(AIBase.RandItem);
+    cargoList.KeepTop(1);
+    return cargoList.Begin();
 }

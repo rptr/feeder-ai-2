@@ -9,10 +9,14 @@ require("planner.nut");
 require("manager.nut");
 require("vehicles.nut");
 
+require("help.nut");
+
 const MIN_DISTANCE =  30;
 const MAX_DISTANCE = 100;
 const MAX_BUS_ROUTE_DISTANCE = 40;
 const INDEPENDENTLY_WEALTHY = 1000000;	// no longer need a loan
+
+const CARGO_STATION_LENGTH = 6;
 
 enum Direction {
 	N, E, S, W, NE, NW, SE, SW
@@ -27,9 +31,10 @@ enum SignalMode {
 	NONE, FORWARD, BACKWARD
 }
 
-class ChooChoo extends AIController {
-	
-	function Start() {
+class HelperAI extends AIController
+{
+	function Start()
+    {
 		AICompany.SetAutoRenewStatus(true);
 		AICompany.SetAutoRenewMonths(0);
 		AICompany.SetAutoRenewMoney(0);
@@ -45,34 +50,28 @@ class ChooChoo extends AIController {
 		
 		::tasks <- [];
 		
-		CheckGameSettings();
+		/* CheckGameSettings(); */
 		
 		AIRail.SetCurrentRailType(AIRailTypeList().Begin());
 	    //CalculateRoutes();
 		
-		if (AIStationList(AIStation.STATION_TRAIN).IsEmpty()) {
-			// start with some point to point lines
-			tasks.push(Bootstrap());
-		}
-		
 		local minMoney = 0;
 		local year = 0;
-		while (true) {
+		while (true)
+        {
 			HandleEvents();
-			
-			if (year != AIDate.GetYear(AIDate.GetCurrentDate())) {
-				CullTrains();
-				year = AIDate.GetYear(AIDate.GetCurrentDate());
-			}
-			
-			if (tasks.len() == 0) {
-				tasks.push(BuildNewNetwork(null));
+
+			if (tasks.len() == 0)
+            {
+				tasks.push(LookForWork());
 			}
 			
 			Debug("Tasks: " + ArrayToString(tasks));
 			
 			local task;
-			try {
+
+			try
+            {
 				if (minMoney > 0) WaitForMoney(minMoney);
 				minMoney = 0;
 				
@@ -81,20 +80,30 @@ class ChooChoo extends AIController {
 				Debug("Running: " + task);
 				task.Run();
 				tasks.remove(0);
-			} catch (e) {
-				if (typeof(e) == "instance") {
-					if (e instanceof TaskRetryException) {
+			}
+            catch (e)
+            {
+				if (typeof(e) == "instance")
+                {
+					if (e instanceof TaskRetryException)
+                    {
 						Sleep(e.sleep);
 						Debug("Retrying...");
-					} else if (e instanceof TaskFailedException) {
+					}
+                    else if (e instanceof TaskFailedException)
+                    {
 						Warning(task + " failed: " + e);
 						tasks.remove(0);
 						task.Failed();
-					} else if (e instanceof NeedMoneyException) {
+					}
+                    else if (e instanceof NeedMoneyException)
+                    {
 						Debug(task + " needs £" + e.amount);
 						minMoney = e.amount;
 					}
-				} else {
+				}
+                else
+                {
 					Error("Unexpected error");
 					return;
 				}
@@ -102,7 +111,8 @@ class ChooChoo extends AIController {
 		}
 	}
 	
-	function WaitForMoney(amount) {
+	function WaitForMoney(amount)
+    {
 		local reserve = GetMinimumSafeMoney();
 		local autorenew = GetAutoRenewMoney();
 		local total = amount + reserve + autorenew;
@@ -187,6 +197,11 @@ class ChooChoo extends AIController {
 			return false;
 		}
 	}
+
+    function add_task (task)
+    {
+        tasks.push(task);
+    }
 	
 	function Save() {
 		return {};
@@ -195,16 +210,34 @@ class ChooChoo extends AIController {
 	function Load(version, data) {}
 }
 
-class Bootstrap extends Task {
+class LookForWork extends Task
+{
 	
 	function _tostring() {
-		return "Bootstrap";
+		return "Look for work";
 	}
 	
-	function Run() {
-		for (local i = 0; i < AIController.GetSetting("CargoLines"); i++) {
-			tasks.push(BuildCargoLine());
-		}
+	function Run()
+    {
+        local station = Help.get_player_station_in_need();
+
+        if (station == null)
+        {
+            Debug("no stations to help");
+            HelperAI.Sleep(10);
+            return false;
+        }
+
+        local industry_id  = Help.get_feed_industry(station);
+        
+        if (industry_id == null)
+        {
+            Debug("no nearby industries");
+            return false;
+        }
+
+        HelperAI.add_task(BuildFeedStation(station, industry_id));
 	}
 	
 }
+
