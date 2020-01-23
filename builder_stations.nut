@@ -1,8 +1,78 @@
+
+class BuildFeederStation extends Builder
+{
+    industry_id     = null;
+    feed_station_id = null;
+    dest_station_id = null;
+    cargo           = null;
+    platform_len    = null;
+
+    constructor (parent_task, location, direction,
+                 industry_id, dest_station_id, 
+                 cargo, platform_len)
+    {
+        local rot = StationRotationForDirection(direction);
+
+        Builder.constructor(parent_task, location, rot);
+
+        this.industry_id        = industry_id;
+        this.dest_station_id    = dest_station_id;
+        this.cargo              = cargo;
+        this.platform_len       = platform_len
+    }
+
+    function Run ()
+    {
+        PutSign(location, "building feeder");
+
+        BuildPlatform();
+    }
+
+	function BuildPlatform ()
+    {
+		// template is oriented NW->SE
+		local direction;
+		if (this.rotation == Rotation.ROT_0 || this.rotation == Rotation.ROT_180) {
+			direction = AIRail.RAILTRACK_NW_SE;
+		} else {
+			direction = AIRail.RAILTRACK_NE_SW;
+		}
+		
+		// on the map, location of the station is the topmost tile
+		local platform;
+		if (this.rotation == Rotation.ROT_0) {
+			platform = GetTile([0, 0]);
+		} else if (this.rotation == Rotation.ROT_90) {
+			platform = GetTile([0, platform_len - 1]);
+		} else if (this.rotation == Rotation.ROT_180) {
+			platform = GetTile([0, platform_len - 1]);
+		} else if (this.rotation == Rotation.ROT_270) {
+			platform = GetTile([0,0]);
+		} else {
+			throw "invalid rotation";
+		}
+		
+		// don't try to build twice
+		local stationID = AIStation.GetStationID(platform);
+
+		if (AIStation.IsValidStation(stationID))
+            return stationID;
+		
+		AIRail.BuildRailStation(platform, direction, 1, platform_len, AIStation.STATION_NEW);
+		CheckError();
+
+        local station_id = AIStation.GetStationID(platform);
+
+        Help.register_ai_station(station_id);
+
+		return station_id;
+	}
+}
+
 /**
  * Single platform terminus station.
  */
 class BuildCargoStation extends Builder {
-	
 	network = null;
 	atIndustry = null;
 	toIndustry = null;

@@ -172,7 +172,7 @@ function FindIndustryStationSite(industry, producing, stationRotation, destinati
     return area.IsEmpty() ? null : area.Begin();
 }
 
-function RandomCargo ()
+function get_raw_cargoes ()
 {
     local cargoList = AICargoList();
     
@@ -181,14 +181,17 @@ function RandomCargo ()
         cargoList.Valuate(AICargo.HasCargoClass, cc);
         cargoList.KeepValue(0);
     }
+
+    return cargoList;
+}
+
+function RandomCargo ()
+{
+    local raw = get_raw_cargoes();   
  
-    if (cargoList.IsEmpty())
-    {
-        throw TaskFailedException("No suitable cargo");
-    }
-    
     // pick one at random
     cargoList.Valuate(AIBase.RandItem);
     cargoList.KeepTop(1);
+
     return cargoList.Begin();
 }
