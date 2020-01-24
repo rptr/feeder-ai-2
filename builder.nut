@@ -207,3 +207,13 @@ function get_nearest_depot (tile_index)
 
     return depotList.IsEmpty() ? null : depotList.Begin();
 }
+
+function get_nearest_industry (tile_index)
+{
+    local all = AIIndustryList();
+    
+    all.Valuate(AIMap.DistanceSquare, tile_index);
+    all.KeepBottom(1);
+
+    return all.IsEmpty() ? null : all.Begin();
+}

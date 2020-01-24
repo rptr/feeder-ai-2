@@ -33,6 +33,13 @@ class Station
         }
     }
 
+    function indu_dist (industry_id, tile_b)
+    {
+        local tile_a = AIIndustry.GetLocation(industry_id);
+
+        return AIMap.DistanceManhattan(tile_a, tile_b);
+    }
+
     function find_industries ()
     {
         local max_dist      = SOAK_DISTANCE;
@@ -43,25 +50,19 @@ class Station
         foreach (cargo_id, _ in cargoes)
         {
             local temp = AIIndustryList_CargoProducing(cargo_id);
-
-            // TODO/XXX maybe there's a better way to do this
-            foreach (indu, _ in temp)
-            {
-                local tile = AIIndustry.GetLocation(indu);
-                industries.AddItem(tile, 0);
-            }
+            industries.AddList(temp);
         }
 
         // can i just create my own valuator function? because this is awful
-        industries.Valuate(AIMap.DistanceManhattan, station_tile); 
+        industries.Valuate(indu_dist, station_tile); 
         industries.KeepBelowValue(max_dist);
+
+        Warning(industries.Count(), "within distance");
 
         this.industries = AIList();
 
-        foreach (industry, _ in industries)
+        foreach (id, _ in industries)
         {
-            local id = AIIndustry.GetIndustryID(industry);
-
             if (AIIndustry.IsValidIndustry(id) &&
                 !Help.ai_industries.HasItem(id) &&
                 !Help.unusable_industries.HasItem(id))
@@ -75,7 +76,7 @@ class Station
         /* TODO, nearby industries are missed */
         /* TODO, the original industry is also used as a feeder */
 
-        /* Warning(this.industries.Count(), "nearby"); */
+        Warning(this.industries.Count(), "nearby");
     }
 
     function get_cargo ()
@@ -135,6 +136,11 @@ function Help::register_player_station (station_id)
     }
 
     Help.player_stations.insert(station_id, Station(station_id));
+
+    local location = AIStation.GetLocation(station_id);
+    local industry_id = get_nearest_industry(location);
+    Help.ai_industries.AddItem(industry_id, 0 );
+
     Warning("found player station");
 }
 

@@ -18,9 +18,9 @@ const INDEPENDENTLY_WEALTHY = 1000000;	// no longer need a loan
 
 const CARGO_STATION_LENGTH = 6;
 
-const SOAK_ALL_CARGOES  = 1;
-const MAX_SOAK_PER_STATION = 1;
-const SOAK_DISTANCE     = 80;
+const SOAK_ALL_CARGOES  = 0;
+const MAX_SOAK_PER_STATION = 30;
+const SOAK_DISTANCE     = 150;
 
 enum Direction {
 	N, E, S, W, NE, NW, SE, SW
@@ -42,7 +42,7 @@ class HelperAI extends AIController
 		AICompany.SetAutoRenewStatus(true);
 		AICompany.SetAutoRenewMonths(0);
 		AICompany.SetAutoRenewMoney(0);
-		
+	
 		AIRoad.SetCurrentRoadType(AIRoad.ROADTYPE_ROAD);
 		
 		::COMPANY <- AICompany.ResolveCompanyID(AICompany.COMPANY_SELF);
