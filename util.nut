@@ -276,7 +276,8 @@ function HaveHQ() {
 	return AICompany.GetCompanyHQ(COMPANY) != AIMap.TILE_INVALID;
 }
 
-function GetEngine(cargo, railType) {
+function GetEngine (cargo, railType)
+{
 	local engineList = AIEngineList(AIVehicle.VT_RAIL);
 	engineList.Valuate(AIEngine.IsWagon);
 	engineList.KeepValue(0);
@@ -305,7 +306,8 @@ function GetEngine(cargo, railType) {
 	return engineList.Begin();
 }
 
-function GetWagon(cargo, railType) {
+function GetWagon (cargo, railType)
+{
 	// select the largest appropriate wagon type
 	local engineList = AIEngineList(AIVehicle.VT_RAIL);
 	engineList.Valuate(AIEngine.CanRefitCargo, cargo);

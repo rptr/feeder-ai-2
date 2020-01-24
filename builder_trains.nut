@@ -21,6 +21,7 @@ class BuildFeederTrain extends Task
     {
         local source_station_tile, depot, rail_type, engine_type, train;
         local dest_station_tile, order_flags;
+        local wagon_type, wagon, train_len;
 
         source_station_id = parentTask.source_station_id;
 
@@ -34,13 +35,28 @@ class BuildFeederTrain extends Task
         depot               = get_nearest_depot(source_station_tile);
         rail_type           = AIRailTypeList().Begin();
 		engine_type         = GetEngine(cargo, rail_type);
-        train               = AIVehicle.BuildVehicle(depot, engine_type);
-        dest_station_tile   = AIStation.GetLocation(dest_station_id);
 
+        train               = AIVehicle.BuildVehicle(depot, engine_type);
         CheckError();
+
+        dest_station_tile   = AIStation.GetLocation(dest_station_id);
+        train_len = 6;
+        wagon_type = GetWagon(cargo, rail_type);
+
+        while (TrainLength(train) < train_len)
+        {
+            wagon = AIVehicle.BuildVehicle(depot, wagon_type);
+            CheckError();
+
+			AIVehicle.RefitVehicle(wagon, cargo);
+			CheckError();
+
+            AIVehicle.MoveWagon(wagon, 0, train, 0);
+        }
 
         order_flags = AIOrder.OF_NONE;
         AIOrder.AppendOrder(train, source_station_tile, order_flags);
+        order_flags = AIOrder.OF_TRANSFER | AIOrder.OF_NO_LOAD;
         AIOrder.AppendOrder(train, dest_station_tile, order_flags);
         AIVehicle.StartStopVehicle(train);
     }
