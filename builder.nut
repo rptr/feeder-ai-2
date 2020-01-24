@@ -212,7 +212,7 @@ function get_nearest_industry (tile_index)
 {
     local all = AIIndustryList();
     
-    all.Valuate(AIMap.DistanceSquare, tile_index);
+    all.Valuate(AIIndustry.GetDistanceManhattanToTile, tile_index);
     all.KeepBottom(1);
 
     return all.IsEmpty() ? null : all.Begin();
