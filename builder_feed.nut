@@ -33,6 +33,8 @@ class CreateFeeder extends Task
         if (site == null)
         {
             Debug("can't find station site for industry");
+            PutSign(industry_tile, "x");
+            Help.mark_industry_unusable(industry_id);
             return false;
         }
 

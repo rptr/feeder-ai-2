@@ -37,7 +37,6 @@ class Station
     {
         local tile_a = AIIndustry.GetLocation(industry_id);
         local dist = sqrt(AIMap.DistanceSquare(tile_a, tile_b));
-        Warning(dist.tointeger());
         return dist.tointeger();
     }
 
@@ -59,7 +58,7 @@ class Station
 
         industries.KeepBelowValue(max_dist);
 
-        /* Warning(industries.Count(), "within distance"); */
+        Warning(industries.Count(), "within distance");
 
         this.industries = AIList();
 
@@ -147,6 +146,13 @@ function Help::register_player_station (station_id)
     Warning("found player station");
 }
 
+function check_name (station)
+{
+    local name = AIStation.GetName(station);
+
+    return name.find("FEED") != null;
+}
+
 function Help::find_player_stations ()
 {
     local all = AIStationList(AIStation.STATION_TRAIN);
@@ -154,7 +160,8 @@ function Help::find_player_stations ()
     foreach (station, _ in all)
     {
         if (Help.ai_stations.HasItem(station) ||
-            Help.is_player_station(station))
+            Help.is_player_station(station) ||
+            !check_name(station))
         {
             continue;
         }
