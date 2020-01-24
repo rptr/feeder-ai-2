@@ -41,8 +41,8 @@ class NeedMoneyException {
 
 class Task {
 	
-	static MAX_ERR_UNKNOWN = 10;
-	static MAX_RETRY = 50;
+	static MAX_ERR_UNKNOWN = 5;
+	static MAX_RETRY = 10;
 	
 	errUnknownCount = 0;
 	errRetryCount = 0;
@@ -108,8 +108,10 @@ class Task {
 	function CheckError() {
 		switch (AIError.GetLastError()) {
 			case AIError.ERR_NONE:
+                return;
 			case AIError.ERR_ALREADY_BUILT:
 			case AITile.ERR_AREA_ALREADY_FLAT:
+                Warning(AIError.GetLastErrorString());
 				return;
 
 			case AIError.ERR_UNKNOWN:
@@ -126,6 +128,16 @@ class Task {
 				errRetryCount++;
 				throw errRetryCount < MAX_RETRY ? TaskRetryException() : TaskFailedException("too many retries");
 			
+            case AIBridge.ERR_BRIDGE_TYPE_UNAVAILABLE:
+                Warning("bridge type unavailable");
+                break;
+            case AIBridge.ERR_BRIDGE_CANNOT_END_IN_WATER:
+                Warning("bridge cannot end in water");
+                break;
+            case AIBridge.ERR_BRIDGE_HEADS_NOT_ON_SAME_HEIGHT:
+                Warning("bridge heads uneven");
+                break;
+
 			case AIError.ERR_PRECONDITION_FAILED:
 			case AIError.ERR_PRECONDITION_STRING_TOO_LONG:
 			case AIError.ERR_NEWGRF_SUPPLIED_ERROR:

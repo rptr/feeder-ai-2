@@ -36,6 +36,8 @@ class CreateFeeder extends Task
             return false;
         }
 
+        Help.register_ai_industry(industry_id);
+
         // NOTE: source_station_id is set when BuildFeederStation::Run is run
         subtasks =
         [
@@ -45,7 +47,10 @@ class CreateFeeder extends Task
         ];
 
         RunSubtasks();
+    }
 
-        Help.register_ai_industry(industry_id);
+    function Failed ()
+    {
+        Help.mark_industry_unusable(industry_id);
     }
 }

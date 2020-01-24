@@ -1,4 +1,7 @@
 
+/*
+ * total length: 15
+ */
 class BuildFeederStation extends Builder
 {
     industry_id     = null;
@@ -23,12 +26,109 @@ class BuildFeederStation extends Builder
 
     function Run ()
     {
-        BuildPlatform(3);
+        Flatten(4, platform_len + 4);
+
+        local s_id = BuildPlatform(0, AIStation.STATION_NEW);
+        Help.register_ai_station(s_id);
+
+        for (local i = 1; i <= 3; i ++)
+            BuildPlatform(i, s_id);
+
 		/* BuildSegment([0, p], [0, p+1]); */
 		BuildDepot([0,-1], [0,0]);
+        BuildEntrance(4);
     }
 
-	function BuildPlatform (num)
+    function Flatten (w, h)
+    {
+        local a = GetTile([0, 0]);
+        local b = GetTile([w, h]);
+        AITile.LevelTiles(a, b);
+
+        Warning("flatten that bitch");
+    }
+
+    function BuildEntrance (num)
+    {
+        local p = platform_len;
+
+        /* PPPP  - platforms
+         * PPPP
+         * ABCD
+         * EFGH
+         * 1234
+         * ....
+         * 8888
+         */
+
+        // designs are very specific, so
+        if (num == 4)
+        {
+            // ABCD
+		    BuildRail([0, p-1], [0, p], [0, p+1]);
+		    BuildRail([1, p-1], [1, p], [1, p+1]);
+		    BuildRail([2, p-1], [2, p], [2, p+1]);
+		    BuildRail([3, p-1], [3, p], [3, p+1]);
+
+            // EFGH
+		    BuildRail([0, p], [0, p+1], [0, p+2]);
+		    BuildRail([1, p], [1, p+1], [1, p+2]);
+		    BuildRail([2, p], [2, p+1], [2, p+2]);
+		    BuildRail([3, p], [3, p+1], [3, p+2]);
+
+            // the crossing part, from H to 3, F to 1
+		    BuildRail([0, p], [0, p+1], [1, p+1]);
+		    BuildRail([0, p+1], [1, p+1], [1, p+2]);
+
+		    BuildRail([2, p], [2, p+1], [3, p+1]);
+		    BuildRail([2, p+1], [3, p+1], [3, p+2]);
+
+            // G to 4, E to 2
+		    BuildRail([1, p], [1, p+1], [0, p+1]);
+		    BuildRail([1, p+1], [0, p+1], [0, p+2]);
+
+		    BuildRail([3, p], [3, p+1], [2, p+1]);
+		    BuildRail([3, p+1], [2, p+1], [2, p+2]);
+
+            // 1
+            for (local i = 0; i < 4; i ++)
+		        BuildRail([3, p+1+i], [3, p+2+i], [3, p+3+i]);
+            // 2
+            for (local i = 0; i < 2; i ++)
+		        BuildRail([2, p+1+i], [2, p+2+i], [2, p+3+i]);
+            // 3
+            BuildRail([1, p+1], [1, p+2], [1, p+3]);
+            // 4
+            for (local i = 0; i < 7; i ++)
+		        BuildRail([0, p+1+i], [0, p+2+i], [0, p+3+i]);
+
+            // bridge at 3
+            BuildBridge([1, p+3], [1, p+6], 4);
+
+            // under bridge - 2 to 4
+            BuildRail([2, p+3], [2, p+4], [1, p+4]);
+            BuildRail([2, p+4], [1, p+4], [1, p+5]);
+            BuildRail([1, p+4], [1, p+5], [0, p+5]);
+            BuildRail([1, p+5], [0, p+5], [0, p+6]);
+
+            // after bridge - 1 to 3
+            BuildRail([1, p+6], [1, p+7], [1, p+8]);
+            BuildRail([1, p+7], [1, p+8], [1, p+9]);
+
+            BuildRail([3, p+5], [3, p+6], [2, p+6]);
+            BuildRail([3, p+6], [2, p+6], [2, p+7]);
+            BuildRail([2, p+6], [2, p+7], [1, p+7]);
+            BuildRail([2, p+7], [1, p+7], [1, p+8]);
+           
+            // signals 
+            BuildSignal([0, p+6], [0, p+7], AIRail.SIGNALTYPE_PBS_ONEWAY); 
+            BuildSignal([1, p+8], [1, p+7], AIRail.SIGNALTYPE_NORMAL); 
+            BuildSignal([3, p+2], [3, p+1], AIRail.SIGNALTYPE_NORMAL); 
+            BuildSignal([1, p+2], [1, p+1], AIRail.SIGNALTYPE_NORMAL); 
+        }
+    }
+
+	function BuildPlatform (x, parent_id)
     {
 		// template is oriented NW->SE
 		local direction;
@@ -41,13 +141,13 @@ class BuildFeederStation extends Builder
 		// on the map, location of the station is the topmost tile
 		local platform;
 		if (this.rotation == Rotation.ROT_0) {
-			platform = GetTile([0, 0]);
+			platform = GetTile([x, 0]);
 		} else if (this.rotation == Rotation.ROT_90) {
-			platform = GetTile([0, platform_len - 1]);
+			platform = GetTile([x, platform_len - 1]);
 		} else if (this.rotation == Rotation.ROT_180) {
-			platform = GetTile([0, platform_len - 1]);
+			platform = GetTile([x, platform_len - 1]);
 		} else if (this.rotation == Rotation.ROT_270) {
-			platform = GetTile([0,0]);
+			platform = GetTile([x,0]);
 		} else {
 			throw "invalid rotation";
 		}
@@ -59,12 +159,11 @@ class BuildFeederStation extends Builder
             return stationID;
 		
 
-		AIRail.BuildRailStation(platform, direction, num, platform_len, AIStation.STATION_NEW);
+		AIRail.BuildRailStation(platform, direction, 1, platform_len, parent_id);
 		CheckError();
 
         local station_id = AIStation.GetStationID(platform);
 
-        Help.register_ai_station(station_id);
         this.parentTask.source_station_id = station_id;
 
 		return station_id;
