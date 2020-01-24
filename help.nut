@@ -25,6 +25,7 @@ class Station
             if (AIStation.HasCargoRating(station_id, cargo_id) || 
                 SOAK_ALL_CARGOES)
             {
+                Warning("have rating", cargo_id);
                 cargoes.AddItem(cargo_id, 0);
             }
         }
@@ -148,6 +149,8 @@ function Help::get_feed_industry (station_id)
     }
 
     local all = Help.player_stations[station_id].industries;
+
+    Help.player_stations[station_id].get_cargo();
 
     foreach (industry_id, _ in all)
     {
