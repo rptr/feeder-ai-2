@@ -57,7 +57,7 @@ class Station
         industries.Valuate(indu_dist, station_tile); 
         industries.KeepBelowValue(max_dist);
 
-        Warning(industries.Count(), "within distance");
+        /* Warning(industries.Count(), "within distance"); */
 
         this.industries = AIList();
 
@@ -76,7 +76,7 @@ class Station
         /* TODO, nearby industries are missed */
         /* TODO, the original industry is also used as a feeder */
 
-        Warning(this.industries.Count(), "nearby");
+        /* Warning(this.industries.Count(), "nearby"); */
     }
 
     function get_cargo ()
@@ -139,7 +139,8 @@ function Help::register_player_station (station_id)
 
     local location = AIStation.GetLocation(station_id);
     local industry_id = get_nearest_industry(location);
-    Help.ai_industries.AddItem(industry_id, 0 );
+
+    Help.ai_industries.AddItem(industry_id, 0);
 
     Warning("found player station");
 }
@@ -215,7 +216,7 @@ function Help::get_feed_industry (station_id)
         return industry_id;
     }
 
-    Debug("station has no industry");
+    /* Debug("station has no industry"); */
     return null;
 }
 
@@ -228,3 +229,4 @@ function Help::mark_industry_unusable (industry_id)
 {
     Help.unusable_industries.AddItem(industry_id, 0);
 }
+
