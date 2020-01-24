@@ -5,11 +5,13 @@ class Station
     industries      = null;
     is_full         = null;
     cargoes         = null;
+    num_fed         = null;
 
     constructor (station_id)
     {
         this.station_id     = station_id;
         is_full             = false;
+        num_fed             = 0;
 
         find_cargoes();
         find_industries();
@@ -25,7 +27,7 @@ class Station
             if (AIStation.HasCargoRating(station_id, cargo_id) || 
                 SOAK_ALL_CARGOES)
             {
-                Warning("have rating", cargo_id);
+                /* Warning("have rating", cargo_id); */
                 cargoes.AddItem(cargo_id, 0);
             }
         }
@@ -46,7 +48,6 @@ class Station
             foreach (indu, _ in temp)
             {
                 local tile = AIIndustry.GetLocation(indu);
-                Warning(tile);
                 industries.AddItem(tile, 0);
             }
         }
@@ -67,7 +68,12 @@ class Station
             }
         }
 
-        Warning(industries.Count(), "nearby");
+        this.industries.KeepTop(MAX_SOAK_PER_STATION);
+
+        /* TODO, nearby industries are missed */
+        /* TODO, the original industry is also used as a feeder */
+
+        /* Warning(this.industries.Count(), "nearby"); */
     }
 
     function get_cargo ()
@@ -93,6 +99,20 @@ class Help
 function Help::register_ai_industry (industry_id)
 {
     Help.ai_industries.AddItem(industry_id, 0);
+
+    // check if a station is full
+    foreach (i, station in player_stations)
+    {
+        local industries = station.industries;
+
+        if (industries.HasItem(industry_id))
+        {
+            station.num_fed += 1;
+
+            if (station.num_fed == industries.Count())
+                station.is_full = true;
+        }
+    }
 }
 
 function Help::register_ai_station (station_id)

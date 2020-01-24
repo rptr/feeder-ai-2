@@ -23,12 +23,12 @@ class BuildFeederStation extends Builder
 
     function Run ()
     {
-        BuildPlatform();
+        BuildPlatform(3);
 		/* BuildSegment([0, p], [0, p+1]); */
 		BuildDepot([0,-1], [0,0]);
     }
 
-	function BuildPlatform ()
+	function BuildPlatform (num)
     {
 		// template is oriented NW->SE
 		local direction;
@@ -58,7 +58,8 @@ class BuildFeederStation extends Builder
 		if (AIStation.IsValidStation(stationID))
             return stationID;
 		
-		AIRail.BuildRailStation(platform, direction, 1, platform_len, AIStation.STATION_NEW);
+
+		AIRail.BuildRailStation(platform, direction, num, platform_len, AIStation.STATION_NEW);
 		CheckError();
 
         local station_id = AIStation.GetStationID(platform);
