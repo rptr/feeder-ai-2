@@ -18,6 +18,8 @@ const INDEPENDENTLY_WEALTHY = 1000000;	// no longer need a loan
 
 const CARGO_STATION_LENGTH = 6;
 
+const SOAK_ALL_CARGOES = 1;
+
 enum Direction {
 	N, E, S, W, NE, NW, SE, SW
 }

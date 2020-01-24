@@ -38,7 +38,8 @@ class CreateFeeder extends Task
         subtasks =
         [
             BuildFeederStation(this, site, direction, 
-                               industry_id, target_station_id, cargo, 6)
+                               industry_id, target_station_id, cargo, 6),
+            BuildFeederTrain()
         ];
 
         RunSubtasks();
