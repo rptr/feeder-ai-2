@@ -62,7 +62,8 @@ class Station
         {
             local id = AIIndustry.GetIndustryID(industry);
 
-            if (AIIndustry.IsValidIndustry(id))
+            if (AIIndustry.IsValidIndustry(id) &&
+                !Help.ai_industries.HasItem(id))
             {
                 this.industries.AddItem(id, 0);
             }
@@ -101,8 +102,10 @@ function Help::register_ai_industry (industry_id)
     Help.ai_industries.AddItem(industry_id, 0);
 
     // check if a station is full
-    foreach (i, station in player_stations)
+    foreach (i, station in Help.player_stations)
     {
+        if (station == null) continue;
+ 
         local industries = station.industries;
 
         if (industries.HasItem(industry_id))
