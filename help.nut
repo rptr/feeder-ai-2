@@ -18,15 +18,13 @@ class Station
     function find_cargoes ()
     {
         local all = get_raw_cargoes();
-        cargoes = AIList() 
-
-        Warning(all.Count());
+        cargoes = AIList();
 
         foreach (cargo_id, _ in all)
         {
-            if (AIStation.HasCargoRating(station_id, cargo_id))
+            if (AIStation.HasCargoRating(station_id, cargo_id) || 
+                SOAK_ALL_CARGOES)
             {
-                Warning("add cargo");
                 cargoes.AddItem(cargo_id, 0);
             }
         }
@@ -46,6 +44,8 @@ class Station
 
         industries.Valuate(AITile.GetDistanceManhattanToTile, station_tile); 
         industries.KeepBelowValue(max_dist);
+
+        Warning(industries.Count(), "nearby");
     }
 
     function get_cargo ()
@@ -142,7 +142,10 @@ function Help::is_ai_station (station_id)
 function Help::get_feed_industry (station_id)
 {
     if (!Help.is_player_station(station_id))
+    {
+        Error("not player station");
         return null;
+    }
 
     local all = Help.player_stations[station_id].industries;
 
@@ -156,6 +159,7 @@ function Help::get_feed_industry (station_id)
         return industry_id;
     }
 
+    Debug("station has no industry");
     return null;
 }
 

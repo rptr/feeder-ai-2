@@ -26,6 +26,8 @@ class BuildFeederStation extends Builder
         PutSign(location, "building feeder");
 
         BuildPlatform();
+		/* BuildSegment([0, p], [0, p+1]); */
+		BuildDepot([0,-1], [0,0]);
     }
 
 	function BuildPlatform ()
