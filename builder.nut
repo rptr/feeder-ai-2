@@ -195,3 +195,13 @@ function RandomCargo ()
 
     return cargoList.Begin();
 }
+
+function get_nearest_depot (tile_index)
+{
+    local depotList = AIDepotList(AITile.TRANSPORT_RAIL);
+    
+    depotList.Valuate(AIMap.DistanceManhattan, tile_index);
+    depotList.KeepBottom(1);
+
+    return depotList.IsEmpty() ? null : depotList.Begin();
+}

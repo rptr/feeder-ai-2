@@ -1,4 +1,53 @@
-class BuildTrains extends Task {
+class BuildFeederTrain extends Task
+{
+    source_station_id   = null;
+    dest_station_id     = null;
+    cargo               = null;
+
+    constructor (parent_task, dest_station_id, cargo)
+    {
+        Task.constructor(parent_task);
+        this.source_station_id  = source_station_id;
+        this.dest_station_id    = dest_station_id;
+        this.cargo              = cargo;
+    }
+
+    function _tostring ()
+    {
+        return "Build feeder trains";
+    }
+
+    function Run ()
+    {
+        local source_station_tile, depot, rail_type, engine_type, train;
+        local dest_station_tile, order_flags;
+
+        source_station_id = parentTask.source_station_id;
+
+        if (source_station_id == null)
+        {
+            Warning("source_station_id not set");
+            return 1;
+        }
+
+        source_station_tile = AIStation.GetLocation(source_station_id);
+        depot               = get_nearest_depot(source_station_tile);
+        rail_type           = AIRailTypeList().Begin();
+		engine_type         = GetEngine(cargo, rail_type);
+        train               = AIVehicle.BuildVehicle(depot, engine_type);
+        dest_station_tile   = AIStation.GetLocation(dest_station_id);
+
+        CheckError();
+
+        order_flags = AIOrder.OF_NONE;
+        AIOrder.AppendOrder(train, source_station_tile, order_flags);
+        AIOrder.AppendOrder(train, dest_station_tile, order_flags);
+        AIVehicle.StartStopVehicle(train);
+    }
+}
+
+class BuildTrains extends Task
+{
 	
 	static TRAINS_ADDED_PER_STATION = 4;
 	

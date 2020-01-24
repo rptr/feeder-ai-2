@@ -2,7 +2,8 @@ class CreateFeeder extends Task
 {
     target_station_id   = null;
     industry_id         = null;
-    cargo               = null
+    cargo               = null;
+    source_station_id   = null;
 
     constructor (target_station_id, industry_id, cargo)
     {
@@ -35,11 +36,12 @@ class CreateFeeder extends Task
             return false;
         }
 
+        // NOTE: source_station_id is set when BuildFeederStation::Run is run
         subtasks =
         [
             BuildFeederStation(this, site, direction, 
                                industry_id, target_station_id, cargo, 6),
-            BuildFeederTrain()
+            BuildFeederTrain(this, target_station_id, cargo)
         ];
 
         RunSubtasks();
