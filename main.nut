@@ -240,6 +240,12 @@ class LookForWork extends Task
             return false;
         }
 
+        if (!AIIndustry.IsValidIndustry(industry_id))
+        {
+            Warning("invalid industry");
+            return false;
+        }
+
         local cargoes   = AICargoList_IndustryProducing(industry_id);
         local cargo     = cargoes.Begin();
         local task      = CreateFeeder(station.station_id, 

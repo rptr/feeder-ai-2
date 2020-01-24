@@ -33,18 +33,39 @@ class Station
 
     function find_industries ()
     {
-        local max_dist      = 500;
+        local max_dist      = SOAK_DISTANCE;
         local station_tile  = AIStation.GetLocation(station_id);
 
-        industries = AIList();
+        local industries = AIList();
 
         foreach (cargo_id, _ in cargoes)
         {
-            industries.AddList(AIIndustryList_CargoProducing(cargo_id));
+            local temp = AIIndustryList_CargoProducing(cargo_id);
+
+            // TODO/XXX maybe there's a better way to do this
+            foreach (indu, _ in temp)
+            {
+                local tile = AIIndustry.GetLocation(indu);
+                Warning(tile);
+                industries.AddItem(tile, 0);
+            }
         }
 
-        industries.Valuate(AITile.GetDistanceManhattanToTile, station_tile); 
+        // can i just create my own valuator function? because this is awful
+        industries.Valuate(AIMap.DistanceManhattan, station_tile); 
         industries.KeepBelowValue(max_dist);
+
+        this.industries = AIList();
+
+        foreach (industry, _ in industries)
+        {
+            local id = AIIndustry.GetIndustryID(industry);
+
+            if (AIIndustry.IsValidIndustry(id))
+            {
+                this.industries.AddItem(id, 0);
+            }
+        }
 
         Warning(industries.Count(), "nearby");
     }
@@ -148,9 +169,9 @@ function Help::get_feed_industry (station_id)
         return null;
     }
 
-    local all = Help.player_stations[station_id].industries;
-
     Help.player_stations[station_id].get_cargo();
+
+    local all = Help.player_stations[station_id].industries;
 
     foreach (industry_id, _ in all)
     {
