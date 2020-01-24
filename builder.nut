@@ -158,7 +158,7 @@ function FindIndustryStationSite(industry, producing, stationRotation, destinati
     // area.Valuate(IsBuildableRectangle, stationRotation, [0, -1], [1, CARGO_STATION_LENGTH + 1], true);
     for (local tile = area.Begin(); area.HasNext(); tile = area.Next())
     {
-        area.SetValue(tile, IsBuildableRectangle(tile, stationRotation, [0, -1], [3, CARGO_STATION_LENGTH + 3], false) ? 1 : 0);
+        area.SetValue(tile, IsBuildableRectangle(tile, stationRotation, [0, -1], [3, CARGO_STATION_LENGTH + 8], false) ? 1 : 0);
     }
  
     area.KeepValue(1);

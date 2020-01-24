@@ -20,7 +20,7 @@ const CARGO_STATION_LENGTH = 6;
 
 const SOAK_ALL_CARGOES  = 0;
 const MAX_SOAK_PER_STATION = 30;
-const SOAK_DISTANCE     = 150;
+const SOAK_DISTANCE     = 200;
 
 enum Direction {
 	N, E, S, W, NE, NW, SE, SW
