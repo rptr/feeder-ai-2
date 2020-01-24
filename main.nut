@@ -89,6 +89,8 @@ class HelperAI extends AIController
 			}
             catch (e)
             {
+                task.Failed();  
+
 				if (typeof(e) == "instance")
                 {
 					if (e instanceof TaskRetryException)
@@ -229,7 +231,7 @@ class LookForWork extends Task
 
         if (station == null)
         {
-            Debug("no stations to help");
+            /* Debug("no stations to help"); */
             return false;
         }
 

@@ -63,7 +63,8 @@ class Station
             local id = AIIndustry.GetIndustryID(industry);
 
             if (AIIndustry.IsValidIndustry(id) &&
-                !Help.ai_industries.HasItem(id))
+                !Help.ai_industries.HasItem(id) &&
+                !Help.unusable_industries.HasItem(id))
             {
                 this.industries.AddItem(id, 0);
             }
@@ -92,6 +93,8 @@ class Help
     static ai_industries    = AIList();
     // stations that the ai has built
     static ai_stations      = AIList();
+    // industries we tried to feed but couldn't
+    static unusable_industries = AIList();
     // stations that the player has build
     static player_stations  = [];
 
@@ -213,4 +216,9 @@ function Help::get_feed_industry (station_id)
 function Help::set_station_full (station_id, full)
 {
     Help.player_stations.GetValue(station_id).is_full = true;
+}
+
+function Help::mark_industry_unusable (industry_id)
+{
+    Help.unusable_industries.AddItem(industry_id, 0);
 }

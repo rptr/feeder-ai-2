@@ -58,6 +58,16 @@ class Builder extends Task {
 		AIRail.BuildRail(GetTile(from), GetTile(on), GetTile(to));
 		CheckError();
 	}
+
+    // quite dumb to pass the length but i'm lazy
+	function BuildBridge (from, to, len)
+    {
+        local all_types = AIBridgeList_Length(len);
+        local bridge_type = all_types.Begin();
+		AIBridge.BuildBridge(AIVehicle.VT_RAIL, bridge_type, 
+                             GetTile(from), GetTile(to));
+		CheckError();
+	}
 	
 	/**
 	 * Remove rail, see BuildRail. If a vehicle is in the way, wait and retry.
