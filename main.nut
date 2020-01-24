@@ -239,9 +239,11 @@ class LookForWork extends Task
             return false;
         }
 
-        local task = CreateFeeder(station.station_id, 
-                                  industry_id, 
-                                  station.get_cargo())
+        local cargoes   = AICargoList_IndustryProducing(industry_id);
+        local cargo     = cargoes.Begin();
+        local task      = CreateFeeder(station.station_id, 
+                                       industry_id, 
+                                       cargo)
         HelperAI.add_task(task);
 	}
 	
