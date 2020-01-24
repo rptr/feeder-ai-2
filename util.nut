@@ -276,7 +276,7 @@ function HaveHQ() {
 	return AICompany.GetCompanyHQ(COMPANY) != AIMap.TILE_INVALID;
 }
 
-function GetEngine(cargo, railType, bannedEngines, cheap) {
+function GetEngine(cargo, railType) {
 	local engineList = AIEngineList(AIVehicle.VT_RAIL);
 	engineList.Valuate(AIEngine.IsWagon);
 	engineList.KeepValue(0);
@@ -286,18 +286,20 @@ function GetEngine(cargo, railType, bannedEngines, cheap) {
 	engineList.KeepValue(1);
 	engineList.Valuate(AIEngine.CanPullCargo, cargo);
 	engineList.KeepValue(1);
-	engineList.RemoveList(ArrayToList(bannedEngines));
+	/* engineList.RemoveList(ArrayToList(bannedEngines)); */
 	
-	engineList.Valuate(AIEngine.GetPrice);
-	if (cheap) {
-		// go for the cheapest
-		engineList.KeepBottom(1);
-	} else {
-		// pick something middle of the range, by removing the top half
-		// this will hopefully give us something decent, even when faced with newgrf train sets
-		engineList.Sort(AIList.SORT_BY_VALUE, true);
-		engineList.RemoveTop(engineList.Count() / 2);
-	}
+	/* engineList.Valuate(AIEngine.GetPrice); */
+	/* if (cheap) { */
+	/* 	// go for the cheapest */
+	/* 	engineList.KeepBottom(1); */
+	/* } else { */
+	/* 	// pick something middle of the range, by removing the top half */
+	/* 	// this will hopefully give us something decent, even when faced with newgrf train sets */
+	/* 	engineList.Sort(AIList.SORT_BY_VALUE, true); */
+	/* 	engineList.RemoveTop(engineList.Count() / 2); */
+	/* } */
+
+	engineList.KeepTop(1);
 	
 	if (engineList.IsEmpty()) throw TaskFailedException("no suitable engine");
 	return engineList.Begin();

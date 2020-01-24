@@ -66,6 +66,7 @@ class BuildFeederStation extends Builder
         local station_id = AIStation.GetStationID(platform);
 
         Help.register_ai_station(station_id);
+        this.parentTask.source_station_id = station_id;
 
 		return station_id;
 	}
