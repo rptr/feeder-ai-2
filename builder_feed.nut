@@ -43,6 +43,7 @@ class CreateFeeder extends Task
         [
             BuildFeederStation(this, site, direction, 
                                industry_id, target_station_id, cargo, 6),
+            BuildFeederTrain(this, target_station_id, cargo),
             BuildFeederTrain(this, target_station_id, cargo)
         ];
 
