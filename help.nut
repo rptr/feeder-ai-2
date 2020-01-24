@@ -36,8 +36,9 @@ class Station
     function indu_dist (industry_id, tile_b)
     {
         local tile_a = AIIndustry.GetLocation(industry_id);
-
-        return AIMap.DistanceManhattan(tile_a, tile_b);
+        local dist = sqrt(AIMap.DistanceSquare(tile_a, tile_b));
+        Warning(dist.tointeger());
+        return dist.tointeger();
     }
 
     function find_industries ()
@@ -55,6 +56,7 @@ class Station
 
         // can i just create my own valuator function? because this is awful
         industries.Valuate(indu_dist, station_tile); 
+
         industries.KeepBelowValue(max_dist);
 
         /* Warning(industries.Count(), "within distance"); */
